@@ -92,9 +92,9 @@ module ActiveReporting
     # Declares a dimension for this fact model
     #
     # @param name [String, Symbol] The name of the dimension
-    def self.dimension(name)
+    def self.dimension(name, label_column: nil)
       @dimensions ||= {}
-      @dimensions[name.to_sym] = Dimension.new(self, name: name)
+      @dimensions[name.to_sym] = Dimension.new(self, name: name, label_column: label_column)
     end
 
     # Returns a hash of dimension label to callback mappings
