@@ -32,6 +32,17 @@ class ActiveReporting::ReportTest < Minitest::Test
     assert data.all? { |r| r.key?('a_metric') }
   end
 
+  def test_report_runs_with_count_distinct
+    metric = ActiveReporting::Metric.new(:a_metric, fact_model: SaleFactModel, dimensions: [:item], aggregate: :count_distinct, distinct_on: [:placed_at_id])
+    report = ActiveReporting::Report.new(metric)
+    data   = report.run
+
+    refute data.empty?
+    assert data.all? { |r| r.key?('a_metric') }
+
+    assert_equal report.send(:select_aggregate), 'COUNT(DISTINCT "placed_at_id")'
+  end
+
   def test_report_runs_with_a_date_grouping
     if ['pg','mysql'].include?(ENV['DB'])
       metric = ActiveReporting::Metric.new(:a_metric, fact_model: UserFactModel, dimensions: [{created_at: :month}])

@@ -80,6 +80,12 @@ module ActiveReporting
       case @metric.aggregate
       when :count
         'COUNT(*)'
+      when :count_distinct
+        columns = @metric.distinct_on
+                         .map { |c| fact_model.model.connection.quote_column_name(c.to_s) }
+                         .join(', ')
+
+        "COUNT(DISTINCT #{columns})"
       else
         "#{@metric.aggregate.to_s.upcase}(#{fact_model.measure})"
       end
