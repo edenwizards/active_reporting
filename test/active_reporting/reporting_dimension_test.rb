@@ -40,6 +40,17 @@ class ActiveReporting::ReportingDimensionTest < ActiveSupport::TestCase
     assert_equal ["#{Figure.quoted_table_name}.#{ActiveRecord::Base.connection.quote_column_name("kind")} AS #{ActiveRecord::Base.connection.quote_column_name("kind")}"], subject.select_statement
   end
 
+  def test_dow_datetime_drill
+    if ['pg','mysql'].include?(ENV['DB'])
+      subject = ActiveReporting::ReportingDimension.new(@user_dimension, datetime_drill: :dow)
+      assert_equal ["DATE_PART('dow', #{User.quoted_table_name}.#{ActiveRecord::Base.connection.quote_column_name("created_at")}) AS #{ActiveRecord::Base.connection.quote_column_name("created_at_dow")}"], subject.select_statement
+    else
+      assert_raises ActiveReporting::InvalidDimensionLabel do
+        ActiveReporting::ReportingDimension.new(@user_dimension, datetime_drill: :dow)
+      end
+    end
+  end
+
   def test_select_statement_can_have_custom_label_name_if_standard
     custom_label_name = 'custom_label_name'
     build_label_name = "#{custom_label_name}"
