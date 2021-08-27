@@ -7,7 +7,7 @@ module ActiveReporting
     SUPPORTED_DBS = %w[PostgreSQL PostGIS Mysql2].freeze
     # Values for the Postgres `date_trunc` method.
     # See https://www.postgresql.org/docs/10/static/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
-    DATETIME_HIERARCHIES = %i[microseconds milliseconds second minute hour day week month quarter year decade
+    DATETIME_HIERARCHIES = %i[microseconds milliseconds second minute hour day dow week month quarter year
                               century millennium date].freeze
     JOIN_METHODS = { joins: :joins, left_outer_joins: :left_outer_joins }.freeze
     attr_reader :join_method, :label
@@ -192,6 +192,8 @@ module ActiveReporting
       case @datetime_drill.to_sym
       when :date
         "DATE('#{column}')"
+      when :dow
+        "DATE_PART('dow', #{column})"
       else
         "DATE_TRUNC('#{@datetime_drill}', #{column})"
       end
@@ -211,6 +213,8 @@ module ActiveReporting
         "HOUR(#{column})"
       when :day
         "DAY(#{column})"
+      when :dow
+        "DAYOFWEEK(#{column})"
       when :week
         "WEEKDAY(#{column})"
       when :month
