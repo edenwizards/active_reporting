@@ -18,6 +18,13 @@ class ActiveReporting::MetricTest < Minitest::Test
     assert @metric.dimensions.all?{ |d| d.is_a?(ActiveReporting::ReportingDimension) }
   end
 
+  def test_metric_handles_count_distinct_aggregation
+    metric = ActiveReporting::Metric.new(:a_metric, fact_model: FigureFactModel, aggregate: :count_distinct, distinct_on: [:id])
+
+    assert_equal metric.aggregate, :count_distinct
+    assert_equal metric.distinct_on, [:id]
+  end
+
   def test_metric_raises_if_given_an_unknown_dimension
     assert_raises ActiveReporting::UnknownDimension do
       ActiveReporting::Metric.new(:a_metric, fact_model: FigureFactModel, dimensions: [:invalid])
